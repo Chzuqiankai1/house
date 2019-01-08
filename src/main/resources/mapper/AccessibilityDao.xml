@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.house.dao.AccessibilityDao">
+    <select id="schoolName" resultType="java.lang.String">
+        SELECT NAME FROM SCHOOLSERVICEABILITY
+    </select>
+
+    <select id="districtName" resultType="java.lang.String">
+        SELECT NAME FROM DISTRICTPOPULATION
+    </select>
+
+    <select id="distance" resultType="java.lang.Double">
+        SELECT DISTANCE FROM DISTRISCHOOLDISTANCE WHERE NAME = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <select id="peopleNum" resultType="java.lang.Integer">
+        SELECT PEOPLENUM FROM DISTRICTPOPULATION WHERE NAME = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <select id="teacherNum" resultType="java.lang.Integer">
+        SELECT TEACHERNUM FROM SCHOOLSERVICEABILITY WHERE NAME = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <select id="schoolLevel" resultType="java.lang.Integer">
+        SELECT SCHOOLLEVEL FROM SCHOOLSERVICEABILITY WHERE NAME = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <!--查询坐标数据-->
+    <select id="getCoordinatesX" resultType="java.lang.Float">
+        select t.shape.SDO_POINT.x from HOUSEINFO_POINT t where t.name = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getCoordinatesY" resultType="java.lang.Float">
+        select t.shape.SDO_POINT.y from HOUSEINFO_POINT t where t.name = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <!--查询附近公共服务设施数据-->
+    <select id="chzuServiceData" resultType="com.house.model.MedicalDataBean">
+        SELECT A.OBJECTID OBJECTID,A.NAME NAME,SDO_GEOM.SDO_DISTANCE(A.SHAPE,MDSYS.SDO_GEOMETRY(2001,NULL,MDSYS.SDO_POINT_TYPE(#{pointx},#{pointy},0),NULL,NULL),1)dist
+        FROM
+          ${tableName} A
+        WHERE
+          SDO_WITHIN_DISTANCE(A.SHAPE,MDSYS.SDO_GEOMETRY(2001,NULL,MDSYS.SDO_POINT_TYPE(#{pointx},#{pointy},0),NULL,NULL),'distance=1000') = 'TRUE'
+        ORDER BY A.NAME
+    </select>
+
+    <select id="getChzuServiceDataWKT" resultType="java.lang.String">
+        select t.shape.GET_WKT() from ${tableName} t WHERE t.OBJECTID = #{objectid,jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryChzuServiceAddr" resultType="java.lang.String">
+        select addr from ${tableName} where OBJECTID = #{objectid,jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryChzuServiceStreet" resultType="java.lang.String">
+        select STREET from ${tableName} where OBJECTID = #{objectid,jdbcType=VARCHAR}
+    </select>
+
+</mapper>
